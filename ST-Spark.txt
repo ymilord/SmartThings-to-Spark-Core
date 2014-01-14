@@ -1,0 +1,107 @@
+/**
+ *  Spark Relay
+ *
+ *  Author: smarttthings@mlabs.us
+ *  Date: 2014-01-11
+ */
+preferences {
+	section("Use this switch for the deck led strip..") {
+		input "Deck", "capability.switch", title: "Deck?"
+	}
+
+	section("Use this switch for the sprinklers..") {
+		input "Sprinklers", "capability.switch", title: "Sprinklers?"
+	}
+    
+    section("Spark Core ID..") {
+		input "SparkID", "parameters", title: "Spark Core ID?"
+	}
+    
+    section("Access Token..") {
+		input "AccessToken", "parameters", title: "Access Token?"
+	}
+
+}
+
+def installed() {
+	log.trace "Installed with settings: ${settings}"
+	initialize()
+}
+
+def updated() {
+	log.debug "Updated with settings: ${settings}"
+
+	unsubscribe()
+	initialize()
+}
+
+def initialize() {
+	// TODO: subscribe to attributes, devices, locations, etc.
+	subscribe(Deck, "switch", deckHandler)
+	subscribe(Sprinklers, "switch", sprinklerHandler)
+}
+
+def deckHandler(evt) {
+	log.trace evt.value
+    if (evt.value == "on") {
+		turnRelayOnDeck('Deck')
+	} else if (evt.value == "off") {
+		turnRelayOffDeck('Deck')
+	}
+}
+
+def sprinklerHandler(evt) {
+	log.trace evt.value
+	if (evt.value == "on") {
+		turnRelayOnSprinkler('sprinkler')
+	} else if (evt.value == "off") {
+		turnRelayOffSprinkler('sprinkler')
+	}
+}
+
+def turnRelayOnDeck(group) {
+    if (group == "") {
+    	group = "all"
+    }
+	def successClosure = { response ->       
+                log.debug "Request was successful, $response"                                                                          
+               }                                            
+               def postBody = "access_token=${AccessToken}&params=r1%2CLOW"
+               httpPost("https://api.spark.io/v1/devices/${SparkID}/relay", postBody, successClosure)
+}
+
+def turnRelayOffDeck(group) {
+	log.trace "turnRelayOff: ${group}"
+    
+    if (group == "") {
+    	group = "all"
+}        
+    def successClosure = { response ->       
+                log.debug "Request was successful, $response"                                                                          
+               }                                            
+               def postBody = "access_token=${AccessToken}&params=r1%2CHIGH"
+               httpPost("https://api.spark.io/v1/devices/${SparkID}/relay", postBody, successClosure)
+}
+def turnRelayOnSprinkler(group) {
+    if (group == "") {
+    	group = "all"
+    }
+	def successClosure = { response ->       
+                log.debug "Request was successful, $response"                                                                          
+               }                                            
+               def postBody = "access_token=${AccessToken}&params=r3%2CLOW"
+               httpPost("https://api.spark.io/v1/devices/${SparkID}/relay", postBody, successClosure)
+}
+
+def turnRelayOffSprinkler(group) {
+	log.trace "turnRelayOff: ${group}"
+    
+    if (group == "") {
+    	group = "all"
+}        
+    def successClosure = { response ->       
+                log.debug "Request was successful, $response"                                                                          
+               }                                            
+               def postBody = "access_token=${AccessToken}&params=r3%2CHIGH"
+               httpPost("https://api.spark.io/v1/devices/${SparkID}/relay", postBody, successClosure)
+}
