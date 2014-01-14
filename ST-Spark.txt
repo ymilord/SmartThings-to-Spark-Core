@@ -3,6 +3,10 @@
  *
  *  Author: smarttthings@mlabs.us
  *  Date: 2014-01-11
+ *
+ *
+ *   Special Thanks to amanfredi from the #Spark IRC Channel for helping me sort 
+ *   out the httpPost issues I was having
  */
 preferences {
 	section("Use this switch for the deck led strip..") {
